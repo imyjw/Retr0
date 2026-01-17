@@ -22,9 +22,39 @@ public class PlatformSpawner : MonoBehaviour {
 
     void Start() {
         // 변수들을 초기화하고 사용할 발판들을 미리 생성
+        platforms=new GameObject[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            platforms[i]=Instantiate(platformPrefab, poolPosition, Quaternion.identity);
+            //platformPrefab을 원본으로 새 발판을 poolPosition 위치에 복제 생성하여 배열에 할당. Quaternion.identity는 오일러각의 (0,0,0)회전에 대응.
+        }
+
+        lastSpawnTime = 0f;
+        timeBetSpawn = 0f;
     }
 
     void Update() {
-        // 순서를 돌아가며 주기적으로 발판을 배치
+        if (GameManager.instance.isGameover) { return; }
+
+        if (Time.time >= lastSpawnTime + timeBetSpawn) // 순서를 돌아가며 주기적으로 발판을 배치
+        {
+            lastSpawnTime = Time.time;
+
+            timeBetSpawn = Random.Range(timeBetSpawnMin, timeBetSpawnMax);
+
+            float yPos = Random.Range(yMin, yMax);
+
+            platforms[currentIndex].SetActive(false);
+            platforms[currentIndex].SetActive(true); //발판을 비활성화햇다가 바로 활성화해서 장애물을 랜덤으로 생성하는 OnEnable()메서드가 실행되게 함
+
+            platforms[currentIndex].transform.position = new Vector2(xPos, yPos);
+            currentIndex++;
+
+            if (currentIndex >= count)
+            {
+                currentIndex = 0;
+            }
+        }
     }
 }
